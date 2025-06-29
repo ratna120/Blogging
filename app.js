@@ -11,7 +11,8 @@ const { checkForAuthenticationCookie } = require('./middlewares/authentication')
 const Blog = require('./models/blog');
 
 const app = express();
-const port = process.env.PORT || 8000;
+const PORT = process.env.PORT || 8000;
+
 
 // ✅ Connect to MongoDB
 mongoose.connect(process.env.MONGO_URL)
@@ -49,4 +50,5 @@ app.get("/", async (req, res) => {
 });
 
 // ✅ Start the server
-app.listen(port, () => console.log(`Server is running on port ${port}`));
+app.listen(PORT);
+
