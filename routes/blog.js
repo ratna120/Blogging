@@ -8,7 +8,7 @@ const Comment = require("../models/comment");
 
 const router = express.Router();
 
-// Set up multer to save uploaded files in /public/uploads
+// ✅ Multer storage for uploaded files
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
     cb(null, "./public/uploads");
@@ -19,12 +19,12 @@ const storage = multer.diskStorage({
 });
 const upload = multer({ storage });
 
-// GET: Add Blog Page
+// ✅ GET: Show Add Blog Page
 router.get("/add", checkAuth, (req, res) => {
   res.render("add-blog");
 });
 
-// POST: Submit Blog
+// ✅ POST: Handle Blog Submission
 router.post("/", checkAuth, upload.single("coverImage"), async (req, res) => {
   try {
     const { title, body } = req.body;
@@ -44,11 +44,12 @@ router.post("/", checkAuth, upload.single("coverImage"), async (req, res) => {
   }
 });
 
-// GET: View Single Blog
+// ✅ GET: View Single Blog
 router.get("/:id", async (req, res) => {
   try {
     const blog = await Blog.findById(req.params.id).populate("createdBy");
     const comments = await Comment.find({ blogId: blog._id }).populate("createdBy");
+
     res.render("blog", { blog, comments });
   } catch (err) {
     console.error("Error fetching blog:", err);
@@ -56,10 +57,10 @@ router.get("/:id", async (req, res) => {
   }
 });
 
-// POST: Add Comment
+// ✅ POST: Add Comment to Blog
 router.post("/comment/:id", checkAuth, async (req, res) => {
   try {
-    const comment = await Comment.create({
+    await Comment.create({
       content: req.body.content,
       blogId: req.params.id,
       createdBy: req.user._id,
