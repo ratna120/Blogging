@@ -25,7 +25,7 @@ app.set("views", path.resolve("./view"));
 // Middlewares
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(checkForAuthenticationCookie('token')); // Set req.user if token is valid
+app.use(checkForAuthenticationCookie('token'));
 app.use(express.static(path.resolve("./public")));
 
 // Make user available in all views
@@ -41,6 +41,7 @@ app.use('/blog', blogRoute);
 // Homepage route
 app.get("/", async (req, res) => {
   try {
+    console.log("Accessing homepage, user:", req.user);
     const allBlogs = await Blog.find({}).populate("createdBy");
     res.render("home", {
       user: req.user,
