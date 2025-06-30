@@ -13,42 +13,46 @@ const Blog = require('./models/blog');
 const app = express();
 const PORT = process.env.PORT || 8000;
 
-
-// ✅ Connect to MongoDB
+// Connect to MongoDB
 mongoose.connect(process.env.MONGO_URL)
   .then(() => console.log("MongoDB connected"))
   .catch((err) => console.error("MongoDB connection error:", err));
 
-// ✅ Set EJS as the view engine
+// Set EJS as the view engine
 app.set("view engine", "ejs");
 app.set("views", path.resolve("./view"));
 
-// ✅ Middlewares
+// Middlewares
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
-app.use(checkForAuthenticationCookie('token')); // set req.user if token is valid
-
-// ✅ Serve static files
+app.use(checkForAuthenticationCookie('token')); // Set req.user if token is valid
 app.use(express.static(path.resolve("./public")));
 
-// ✅ Make user available in all views (locals.user in EJS)
+// Make user available in all views
 app.use((req, res, next) => {
-  res.locals.user = req.user;
+  res.locals.user = req.user || null;
   next();
 });
 
-// ✅ Routes
+// Routes
 app.use('/user', userRoute);
 app.use('/blog', blogRoute);
 
-// ✅ Homepage route
+// Homepage route
 app.get("/", async (req, res) => {
-  const allBlogs = await Blog.find({});
-  res.render("home", {
-    blogs: allBlogs
-  });
+  try {
+    const allBlogs = await Blog.find({}).populate("createdBy");
+    res.render("home", {
+      user: req.user,
+      blogs: allBlogs
+    });
+  } catch (err) {
+    console.error("Error fetching blogs:", err);
+    res.status(500).render("error", { message: "Failed to load homepage" });
+  }
 });
 
-// ✅ Start the server
-app.listen(PORT);
-
+// Start the server
+app.listen(PORT, () => {
+  console.log(`Server running on port ${PORT}`);
+});

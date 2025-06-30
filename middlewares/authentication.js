@@ -10,12 +10,22 @@ function checkForAuthenticationCookie(cookieName) {
     try {
       const userPayload = validateToken(tokenCookieValue);
       req.user = userPayload;
-    } catch (error) {}
+    } catch (error) {
+      console.error("Token validation error:", error);
+    }
 
     return next();
   };
 }
 
+function checkAuth(req, res, next) {
+  if (!req.user) {
+    return res.redirect("/user/signin"); // Redirect to login if not authenticated
+  }
+  next();
+}
+
 module.exports = {
   checkForAuthenticationCookie,
+  checkAuth,
 };
